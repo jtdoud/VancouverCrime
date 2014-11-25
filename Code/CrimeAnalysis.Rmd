@@ -1,0 +1,173 @@
+---
+title: "Exploring Vancouver Crime Data with R Markdown"
+author: "Tucker Doud"
+date: "Nov 10, 2014"
+output:
+  html_document:
+    fig_caption: yes
+---
+
+```{r echo=FALSE, results='hide'}
+# Set directory
+setwd("C:/Users/jtdou_000/OneDrive/Professional/VancouverCrimeData/Code")
+```
+##Introduction
+This report was written for the simple reason that I wanted to get some practice authoring literate statistical programming reports using [R Markdown](http://rmarkdown.rstudio.com/). R Markdown is a simple way to author web pages which allows analysts to embed computations and visualizations from the [R Statistical Programming Language](http://www.r-project.org/) within a HTML document. Literate Programming allows the reader to get a plain laguange version of a data analysis woven together with the actual source code used to produce the statistics and vizualizations. Using the code the reader is empowered to completely reproduce the analytical work thus ensureing openess and integration between analytical thought and presentation.
+
+For this example I examine some crime data posted on the City of Vancouver [Open Data Catalogue](http://vancouver.ca/your-government/open-data-catalogue.aspx). I take the reader through some exploratory data analysis and visualization using R.
+
+##Set up the Analysis
+One of the benefits of R being a completely open source program is that it allows for a very wide networks of developers to to write adds on for the program. For this piece I use two very handy tools for data analysis and visualization: `dplyr` for data manipulation and `ggplot2` for visualization. These tools are loaded below.
+```{r warning=FALSE, message=FALSE}
+# Load Required Libraries
+library(dplyr)
+library(ggplot2)
+```
+Rather than using my web browser to get the data source from the Vancouver open data portal I can have R do it for me and save the code in my working directory. I obtain the data file for the most recent _complete_ year at the time of this writing. The following code downloads the data, saves it into my working directory, and then loads it into R. I leave any character type variables as text strings for now (rather than having R convert them to categorical variables) because I want to have control over the process later on.
+```{r cache=TRUE}
+# Get data
+# download.file(url = "ftp://webftp.vancouver.ca/opendata/csv/crime_2013.csv", 
+#               destfile = "crime_2013.csv")
+
+# Read in data
+data <- read.csv("crime_2013.csv", stringsAsFactors = F)
+```
+
+##Exploratory Data Analysis
+Now that we have our data let's have a look at it.
+```{r}
+# Explore variable names
+names(data)
+# Change names to lower case
+names(data) <- tolower(names(data))
+```
+The data file contains 4 variables noted above. Since R programming is predominantley done in lower case I convert the variable names to lower case to make my coding more consistent.
+
+Next I explore the size and structure of the data file.
+```{r}
+# Review structure
+str(data)
+```
+The data file contains 15335 observations and 4 varaibles (noted above). The `year` and `month` variables are integers.
+
+I can use the `head` function in R to show me the top 10 rows of the data file to give me a bit more information.
+```{r}
+# Examine first 10 rows
+head(data, 10)
+```
+Or for a more representative example I can take a random sample of 10 rows to display.
+```{r}
+# Review a random sample of rows
+data[sample(x = nrow(data), size = 10), ]
+```
+Since I only downloaded data for 2013 lets make sure that the data file only contains incidents for the correct year. Furthermore, let us make sure that the file contains data for all 12 months.
+```{r}
+# Check year
+unique(data$year)
+# Make sure month variable is as expected
+unique(data$month)
+```
+As we can see, we only have data for the year 2013 and all 12 months are covered.
+
+Let us have a closer look at the `type` variable.
+```{r}
+# View unique categories of crime type
+unique(data$type)
+```
+We have 7 types of crime reported in this data file. It appears that only property crimes are included. Now I will convert this variable to a categorical variable type so R can make better use of it in later stages of this analysis. I use the `factor` function to convert the variable. Then I use the `reorder` function to rearrange the levels of the categories based on how many observations each level acconuts for. This will come in handy later on.
+```{r}
+# Convert type to factor
+data$type <- factor(x = data$type)
+data$type <- reorder(x = data$type, X = data$type, FUN = length)
+```
+Now I will convert the `month` variable to an ordered factor with names for each of the months. This will make the visualizations easier to read later on. I add this to a new varaible called `monthRC` - for month *recoded* - just in case I need the integer format for another purpose.
+```{r}
+data$monthRC <- factor(x = data$month, 
+                        labels = c("Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                                   "Jul" ,"Aug" ,"Sep" , "Oct", "Nov", "Dec"),
+                        ordered = T)
+```
+Now that we have tidied up the data file, let's do a little number crunching.
+
+Let us check to see if there are any observations with missing data.
+```{r}
+# Any missing?
+sum(!complete.cases(data))
+```
+Zero incomplete observations.
+
+Let us tally the observations by the `type` variable using base R's `table` function.
+```{r}
+# Tally by type
+table(data$type)[order(table(data$type), decreasing = T)] # Order decreasing
+```
+We can see that **Theft From Auto Under $5000** was the most frequent type of crime in 2013. **Mischief Over $5000** was the least frequent.
+
+Let's have a look at the frequency of crimes by _month_. But I don't like the way the `table` fucntion displays information so I will use `dplyr` (mentioned above), which provides nicer output and uses a far more legible syntax.
+```{r}
+# Tally by month the dplyr way
+group_by(.data = data, monthRC) %>%
+    summarise(count = n()) %>%
+    arrange(desc(count))
+```
+
+## Visualizations
+Tables are a nice way to summarize data but since humans tend to be better at recognizing visual pattens, I plot the same data with a bar chart.
+```{r}
+# Set up custom theme
+my_theme <- theme_bw() +
+    theme(panel.border = element_blank(),
+          axis.ticks = element_blank(),
+          panel.grid.minor = element_blank(),
+          panel.grid.major.x = element_blank(),
+          panel.grid.major.y = element_line(size = 0.5),
+          axis.title = element_text(colour = "grey40"),
+          plot.title = element_text(vjust = 2.0))
+
+# Plot crime count by month
+ggplot(data = data, aes(x = monthRC)) + 
+    my_theme +
+    geom_bar(stat = "bin", fill = "lightblue", width = 0.75) +
+    ggtitle("Total Crimes by Month") +
+    xlab(NULL) +
+    ylab("Total Crime Count")
+```
+
+The visualization makes it easier to see that total crimes seem to *generally* increase throughout the year.
+
+The chart above helps to do some interpretation but since we have the crime *type* in the data why not plot the different types over time. I'll divide into two plots so the less frequent crimes do not get crammed down at the bottom of the plot.
+```{r fig.width=9}
+# Subset the data for the less frequent categories
+sub <- levels(data$type)[1:4] # Create a subseting object
+temp <- filter(.data = data, type %in% sub) # Subset using dplyr
+
+# Make plot
+ggplot(data = temp, aes(x = monthRC, color = type, group = type)) +
+    my_theme +
+    geom_line(stat = "bin", size = 1) +
+    ggtitle("Crime Type by Month - Less Frequent") +
+    xlab(NULL) +
+    ylab("Crime Count")
+```
+
+Notice the spike in *Theft of Auto Under $5000* in March. The other categories are fairly consistent throughout the year at less than 25 occurences per month.
+```{r fig.width=9}
+# Do another subset for the more frequent categories
+sub <- levels(data$type)[5:7]
+temp <- filter(.data = data, type %in% sub)
+
+# Make second plot
+ggplot(data = temp, aes(x = monthRC, color = type, group = type)) + 
+    my_theme +
+    geom_line(stat = "bin", size = 1) +
+    ggtitle("Crime Type by Month - More Frequent") +
+    xlab(NULL) +
+    ylab("Crime Count")
+```
+
+Here we can see that *Theft from Auto Under $5000* is what is driving the general increase in crimes we detected in the first plot.
+
+## Summary
+And there we have some data exploration and visualization using the R programming language! As mentioned above, the reader also has full access to the code to reproduce this analysis on their own. 
+
+Finally, as you may have noticed, I made no use of what may be the most interesting variable in the data file... All of the crimes have been coded with a location. R can also be used to do spatial analysis and mapping using location data. As a follow up to this report I will issue a part two that makes use of the location infomation.
