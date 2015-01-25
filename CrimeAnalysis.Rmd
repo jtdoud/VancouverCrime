@@ -1,10 +1,9 @@
 ---
-title: "Exploring Vancouver Crime Data with R Markdown"
+title: "Exploring Vancouver Crime Data with R"
 author: "Tucker Doud"
 date: "Nov 10, 2014"
 output:
-  html_document:
-    fig_caption: yes
+  html_document: default
 ---
 
 ```{r echo=FALSE, results='hide'}
@@ -12,12 +11,12 @@ output:
 setwd("~/GitHub/VancouverCrime")
 ```
 ##Introduction
-This report was written for the simple reason that I wanted to get some practice authoring literate statistical programming reports using [R Markdown](http://rmarkdown.rstudio.com/). R Markdown is a simple way to author web pages which allows analysts to embed computations and visualizations from the [R Statistical Programming Language](http://www.r-project.org/) within a HTML document. Literate Programming allows the reader to get a plain language version of a data analysis woven together with the actual source code used to produce the statistics and visualizations. Using the code the reader is empowered to completely reproduce the analytical work thus ensuring openness and integration between analytical thought and presentation.
+This report was written for the simple reason that I wanted to get some practice authoring literate statistical programming reports using [R Markdown](http://rmarkdown.rstudio.com/). R Markdown is a simple way to author web pages which allows analysts to embed computations and visualizations from the [R Statistical Programming Language](http://www.r-project.org/) within an HTML document. Literate Programming allows the reader to get a plain language version of a data analysis woven together with the actual source code used to produce the statistics and visualizations. Using the code, the reader is empowered to completely reproduce the analytical work thus ensuring openness and integration between analytical thought and presentation.
 
 For this example I examine some crime data posted on the City of Vancouver [Open Data Catalogue](http://vancouver.ca/your-government/open-data-catalogue.aspx). I take the reader through some exploratory data analysis and visualization using R.
 
 ##Set up the Analysis
-One of the benefits of R being a completely open source program is that it allows for a very wide networks of developers to to write adds on for the program. For this piece I use two of such tools for data analysis and visualization: `dplyr` for data manipulation and `ggplot2` for visualization. These tools are loaded below.
+One of the benefits of R being a completely open source program is that it allows for a very wide networks of developers to to write add ons for the program. For this piece I use two of such tools for data analysis and visualization: `dplyr` for data manipulation and `ggplot2` for visualization. These tools are loaded below.
 ```{r warning=FALSE, message=FALSE}
 # Load Required Libraries
 library(dplyr)
@@ -26,8 +25,7 @@ library(ggplot2)
 Rather than using my web browser to get the data source from the Vancouver open data portal I can have R do it for me and save the data into my analysis file. I obtain the data file for the most recent *complete* year at the time of this writing. The following code downloads the data, saves it into my working directory. 
 ```{r eval=FALSE}
 # Get data
-download.file(url = "ftp://webftp.vancouver.ca/opendata/csv/crime_2013.csv", 
-              destfile = "./crime_2013.csv")
+download.file(url = "ftp://webftp.vancouver.ca/opendata/csv/crime_2013.csv", destfile = "./crime_2013.csv")
 ```
 Now I can read the data into R. I leave any character type variables as text strings (rather than having R convert them to categorical variables) because I want to have control over the process later on.
 ```{r}
@@ -36,7 +34,7 @@ data <- read.csv("./crime_2013.csv", stringsAsFactors = F)
 ```
 
 ##Exploratory Data Analysis
-Now that we have our data we can sue some base R functions to explore the data a little.
+Now that we have our data we can use some base R functions to explore the data a little.
 ```{r}
 # Explore variable names
 names(data)
@@ -89,7 +87,7 @@ data$monthRC <- factor(x = data$month,
                                    "Jul" ,"Aug" ,"Sep" , "Oct", "Nov", "Dec"),
                         ordered = T)
 ```
-Now that I have tidied up the data file, I do a little number crunching.
+Now that I have tidied up the data file, I can do a little number crunching.
 
 But first I check to see if there are any observations with missing data.
 ```{r}
@@ -114,7 +112,7 @@ group_by(.data = data, monthRC) %>%
 ```
 
 ## Visualizations
-Tables are a nice way to summarize data but since humans tend to be better at recognizing visual patterns, I plot the same data with a bar chart. The default plotting in ggplot2 is nice but I prefer a more simplified look for presenting data on the web. I set up a custom ggplot theme with the code below and them plot the data.
+Tables are a nice way to summarize data but since humans tend to be better at recognizing visual patterns, I plot the same data with a bar chart. The default plotting in ggplot2 is nice but I prefer a more simplified look for presenting data on the web. I set up a custom ggplot theme with the code below and then plot the data.
 ```{r}
 # Set up custom theme
 my_theme <- theme_bw() +
