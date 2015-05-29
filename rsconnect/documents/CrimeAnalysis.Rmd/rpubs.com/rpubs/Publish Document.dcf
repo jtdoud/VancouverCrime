@@ -1,0 +1,7 @@
+name: Publish Document
+account: rpubs
+server: rpubs.com
+bundleId:
+        https://api.rpubs.com/api/v1/document/56876/dfdc1540f7004b348e0399d91c0cacf2
+url: http://rpubs.com/jtdoud/56876
+when: 1432880346.68952

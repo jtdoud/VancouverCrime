@@ -69,7 +69,7 @@ img {
 
 <div id="introduction" class="section level2">
 <h2>Introduction</h2>
-<p>This report was written for the simple reason that I wanted to get some practice authoring literate statistical programming reports using <a href="http://rmarkdown.rstudio.com/">R Markdown</a>. R Markdown is a basic language used to author web pages which allows analysts to embed computations and visualizations from the <a href="http://www.r-project.org/">R Statistical Programming Language</a> within an HTML document. Literate Programming allows the reader to get a plain language version of a data analysis woven together with the actual source code used to produce the statistics and visualizations. Using the code, the reader is empowered to completely reproduce the analytical work thus ensuring openness and integration between analytical thought and presentation.</p>
+<p>This report was written simply because I wanted to get some practice authoring literate statistical programming reports using <a href="http://rmarkdown.rstudio.com/">R Markdown</a>. R Markdown is a basic language used to author web pages which allows analysts to embed computations and visualizations from the <a href="http://www.r-project.org/">R Statistical Programming Language</a> within an HTML document. Literate Programming allows the reader to get a plain language version of a data analysis woven together with the actual source code used to produce the statistics and visualizations. Using the code, the reader is empowered to completely reproduce the analytical work thus ensuring openness and integration between analytical thought and presentation.</p>
 <p>For this example I examine some crime data posted on the City of Vancouver <a href="http://vancouver.ca/your-government/open-data-catalogue.aspx">Open Data Catalogue</a>. I take the reader through some exploratory data analysis and visualization using R.</p>
 </div>
 <div id="set-up-the-analysis" class="section level2">
@@ -120,17 +120,17 @@ head(data, 10)</code></pre>
 <p>Or for a more representative example I can take a random sample of 10 rows to display.</p>
 <pre class="r"><code># Review a random sample of rows
 data[sample(x = nrow(data), size = 10), ]</code></pre>
-<pre><code>##                              type year month             hundred_block
-## 2033    Theft Of Auto Under $5000 2013     2             74XX ANGUS DR
-## 738   Theft From Auto Under $5000 2013     1           36XX DEASE LANE
-## 2807  Theft From Auto Under $5000 2013     3           14XX HARWOOD ST
-## 6362         Mischief Under $5000 2013     6           26XX E 19TH AVE
-## 718   Theft From Auto Under $5000 2013     1            69XX QUEBEC ST
-## 14500 Theft From Auto Under $5000 2013    12 DUNSMUIR ST / RICHARDS ST
-## 13633 Theft From Auto Under $5000 2013    11           25XX ONTARIO ST
-## 2413         Mischief Under $5000 2013     3           34XX E 49TH AVE
-## 6367         Mischief Under $5000 2013     6           26XX E 19TH AVE
-## 4312  Theft From Auto Under $5000 2013     4            3XX W 26TH AVE</code></pre>
+<pre><code>##                              type year month         hundred_block
+## 4057  Theft From Auto Under $5000 2013     4        31XX E 5TH AVE
+## 468   Theft From Auto Under $5000 2013     1    6XX W BROADWAY AVE
+## 793   Theft From Auto Under $5000 2013     1 22XX PRINCE ALBERT ST
+## 1380         Mischief Under $5000 2013     2     5XX E HASTINGS ST
+## 15013 Theft From Auto Under $5000 2013    12        42XX FRASER ST
+## 6128   Commercial Break and Enter 2013     6       12XX W 10TH AVE
+## 8210  Theft From Auto Under $5000 2013     7        6XX BURRARD ST
+## 6427         Mischief Under $5000 2013     6      29XX E PENDER ST
+## 1932  Theft From Auto Under $5000 2013     2    47XX COMMERCIAL ST
+## 3584   Commercial Break and Enter 2013     4    14XX OLD BRIDGE ST</code></pre>
 <p>Since I only downloaded data for 2013 I make sure that the data file only contains incidents for the correct year. Furthermore, I determine that the file contains data for all 12 months.</p>
 <pre class="r"><code># Check year
 unique(data$year)</code></pre>
